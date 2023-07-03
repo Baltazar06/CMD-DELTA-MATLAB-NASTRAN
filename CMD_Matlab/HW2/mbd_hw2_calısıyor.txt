@@ -1,0 +1,71 @@
+clc;
+clear;
+clear all;
+
+global a1 a2 h Xp Yp thp  
+
+h = 185;
+a1 = 150;
+a2 = 105;
+
+x0 = [280 40*pi/180 -45*pi/180]';
+
+t = 0:1:10;
+n = length(t);
+
+% tt=0:0.1:10;
+% nn=length(tt);
+s = zeros(1,n);
+th1 = zeros(1,n);
+th2 = zeros(1,n);
+
+for i = 1:n %time
+    Xp = (100*cos(((pi*i)/10)+pi)+580);
+    Yp = (22*cos((pi*i)/10)+178);
+    thp = (22*cos((pi*i)/10)-68)*pi/180; 
+    [y,fval] = fsolve(@mech_eq,x0)
+    s(i) = y(1);
+    th1(i) = y(2);
+    th2(i) = y(3);
+end
+
+% exact solution part
+time = 0:0.1:10;
+Yp_new = (22*cos((pi*time)/10)+178);
+Xp_new = (100*cos(((pi*i)/10)+pi)+580);
+thp_new = (22*cos((pi*i)/10)-68)*pi/180;
+sigma=1;
+
+beta=(Yp_new-h-a2*sin(y(3)))/a1;
+th2_e = thp_new;
+th1_e = atan2(beta,sigma*sqrt(1-beta.^2));
+s_e = Xp_new-a1*cos(y(2))-a2*cos(y(3));
+
+figure(1); % show the theta1 angle with its exact value
+plot(time,th1_e*180/pi,'k-',t,th1*180/pi,'bo-')
+xlabel(texlabel('time [seconds]')),ylabel('theta1 [degree]')
+legend('exact','numerical','location','best')
+
+figure(2); % theta2
+plot(time,th2_e*180/pi,'k-',t,th2*180/pi,'bo-')
+xlabel(texlabel('time [seconds]')),ylabel('theta2 [degree]')
+legend('exact','numerical','location','best')
+
+figure(3); % s 
+plot(time,s_e,'k-',t,s,'bo-')
+xlabel(texlabel('time [seconds]')),ylabel('s [mm]')
+legend('exact','numerical','location','best')
+
+
+function F=mech_eq(x)
+global a1 a2 h Xp Yp thp  
+% s = x(1)
+% th1 = x(2)
+% th2 = x(3)
+
+ F=[Xp-x(1)-a1*cos(x(2))-a2*cos(x(3));
+    Yp-h-a1*sin(x(2))-a2*sin(x(3));
+     thp-x(3)];
+
+end
+   
